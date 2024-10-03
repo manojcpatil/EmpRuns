@@ -1,0 +1,83 @@
+function Stats = Runs_WE(samples, ch, k, r, c)
+% ----------------------------------------------
+%  Enk = Runs_WE(samples, ch, k, r, c)
+%
+%  This function returns the number of E(n,k) of character/state 'ch'
+%  in samples for the 'n' trials 'k' run length of character/state 'ch'.
+%
+%  samples = Matrix of size m*n, where 'm' sample sequences of length 'n' should be arranged in rows.
+%  ch      = State or Character for which runs to be calculated.
+%  n       = Number of trials/ Length of the sequence.
+%  k       = length of 'ch'-run to calculate in n trials.
+%  r       = Target run number
+%  c       = 0 for linear sequences and 1 for circular sequences.
+%
+%  Description:
+%  Mood (1940) introduced this counting scheme of runs.
+%  In this counting scheme, a run (consecutive occurrences)
+%  of successes of length k followed and preceded by the
+%  failure is considered to be the run of exact length k. Thus
+%  this classical definition of runs asserts that the consecutive
+%  runs must be separated by one or more failures. This
+%  scheme of counting runs is the oldest counting scheme.
+%
+%  E(n,k)^i:
+%  The number of i-runs of exact length k followed by any other
+%  character other than i in the sense of Mood's (1940) counting. In this
+%  counting scheme, an i-run of length k followed (except the run
+%  that completes at the last) and preceded (except the run
+%  that starts at the first) by any other than i is considered to be the run of exact length k.
+%
+%  Example:
+%  Input:
+%  z = [1,0,1,1,1,1,1,0,1,1,1,0,0,0,1,1,1,0,1,1];
+%  statistic  = Runs_WE(z,1,3,2,0)   % Linear Sequence
+%  statistic1 = Runs_WE(z,1,3,3,1)   % Circular Sequence
+%
+%  Output:
+%  statistic = 8
+%  statistic1 = 18
+%
+%  z = binornd(1,0.65,200,20);
+%  statistic = Runs_WE(z,1,3,2,0);   % Run Statistic for each sequence
+%  m = describe(statistic)           % Descriptive Statistics
+%
+%  Reference:
+%  Mood, A. M. (1940). The Distribution Theory of Runs, Annals
+%  of Mathematical Statistics, 11, 367-392.
+%
+%  See also:
+%  Runs_N, Runs_M, Runs_G and Runs_X
+% ----------------------------------------------
+if nargin < 4
+    error('Runs:Runs_WE:TooFewInputs', 'Input arguments are undefined.');
+elseif nargin < 5
+    c = 0;
+end
+
+[nrows, ncols] = size(samples);
+
+if nrows == 1
+    samples = vec2mat(samples, ncols);
+end
+
+klength = length(k);
+Stats = repmat(ncols + 1, nrows, klength);
+
+for i =  1 : nrows
+for d = 1:klength
+    if c == 1
+        tpsamples = [samples, samples(:, 1:k(d) - 1)];
+    else
+        tpsamples = samples;
+    end
+
+    [nrows, ncols] = size(tpsamples);
+    
+    runs_count=tpsamples(1:k(d))==ch
+    
+
+    Stats(i,d)=0;
+    
+end
+end

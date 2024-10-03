@@ -1,0 +1,61 @@
+function Stats = Runs_G(samples, ch, n, k, c)
+    % Input:
+    %   samples: a matrix where each row represents a sequence of binary values
+    %   ch: the character to count runs for
+    %   n: the number of trials
+    %   k: a vector of run length thresholds
+    %   c: 1 for circular sequences, 0 for non-circular sequences
+    % Output:
+    %   Stats: a matrix where each column corresponds to a value of 'k', and each row corresponds to a row in 'samples'
+
+    % Validate inputs
+    if ~isnumeric(samples) || ~isscalar(ch) || ~isscalar(n) || ~isvector(k) || ~isscalar(c)
+        error('Invalid input. Please provide a matrix of samples, valid scalar inputs, and a vector of run length thresholds.');
+    end
+
+    % Initialize Stats matrix
+    Stats = zeros(size(samples, 1), length(k));
+
+    % Iterate through each row of the matrix
+    for i = 1:size(samples, 1)
+        % Extract the current row (sequence)
+        currentSample = samples(i, :);
+
+        % Circular or non-circular sequence
+        if c == 1
+            currentSample = [currentSample, currentSample(1:n-1)]; % Circular sequence
+        end
+
+        % Iterate through each value of 'k'
+        for j = 1:length(k)
+            currentK = k(j);
+
+            % Initialize count for the current row and 'k'
+            currentRunCount = 0;
+
+            % Initialize the length of the current run
+            currentRunLength = 0;
+
+            % Iterate through the sequence to count runs
+            for m = 1:length(currentSample)
+                if currentSample(m) == ch
+                    % Increment the length of the current run
+                    currentRunLength = currentRunLength + 1;
+                else
+                    % Check if the current run meets the length threshold
+                    if currentRunLength >= currentK
+                        currentRunCount = currentRunCount + 1;
+                    end
+                    % Reset the length of the current run
+                    currentRunLength = 0;
+                end
+            % Check the last run in the sequence
+            if currentRunLength >= currentK
+                currentRunCount = currentRunCount + 1;
+            end
+
+            % Store the count for the current row and 'k' in the Stats matrix
+            Stats(i, j) = currentRunCount;
+        end
+    end
+end
